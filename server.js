@@ -1,6 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var mongodb = require('mongodb');
+var MongoClient = require('mongodb').MongoClient;
 var objectId = require('mongodb').ObjectId;
 var expressValidator = require('express-validator');
 var app = express();
@@ -25,11 +25,7 @@ app.use(function(req, res, next) {
 
 app.listen(process.env.PORT || 8080);
 
-var db = new mongodb.Db(
-  'loja',
-  new mongodb.Server(process.env.MONGO_URL || "localhost", process.env.PORT || 27017, {}),
-  {}
-);
+var uri = "mongodb://loja_admin:1536974@cluster0-shard-00-00-znuyq.mongodb.net:27017,cluster0-shard-00-01-znuyq.mongodb.net:27017,cluster0-shard-00-02-znuyq.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority";
 
 console.log('|========== Servidor HTTP online ==========|');
 
@@ -53,57 +49,54 @@ app.post('/api/produto', function(req, res) {
     res.status(400).json(erros)
     console.log(erros);
   } else {
-    db.open(function(err, mongoclient) {
-      mongoclient.collection('produtos', function(err, collection) {
-        collection.insert(dados, function(err, records) {
-          if(err) {
-            res.json(err);
-          } else {
-            res.json(records);
-          }
-          mongoclient.close();
-        });
+    MongoClient.connect(uri, function(err, client) {
+      const collection = client.db("loja").collection("produtos");
+      collection.insert(dados, function(err, records) {
+        if(err) {
+          res.json(err);
+        } else {
+          res.json(records);
+        }
       });
+      client.close();
     });
   }
 });
 
 // GET (Ready)
 app.get('/api/produtos', function(req, res) {
-  db.open(function(err, mongoclient) {
-    mongoclient.collection('produtos', function(err, collection) {
+  MongoClient.connect(uri, function(err, client) {
+    const collection = client.db("loja").collection("produtos");
       collection.find().toArray(function(err, result) {
         if(err) {
           res.json(err);
         } else {
           res.json(result);
         }
-        mongoclient.close();
       });
-    });
+    client.close();
   });
 });
 
 // GET by ID (Ready/ID)
 app.get('/api/produtos/:id', function(req, res) {
-  db.open( function(err, mongoclient) {
-    mongoclient.collection('produtos', function(err, collection) {
+  MongoClient.connect(uri, function(err, client) {
+    const collection = client.db("loja").collection("produtos");
       collection.find(objectId(req.params.id)).toArray(function(err, results) {
         if(err){
           res.json(err);
         } else {
           res.status(200).json(results);
         }
-        mongoclient.close();
       });
-    });
+    client.close();
   });
 });
 
 // PUT by ID (Update/ID)
 app.put('/api/produto/:id', function(req, res) {
-  db.open( function(err, mongoclient) {
-    mongoclient.collection('produtos', function(err, collection) {
+  MongoClient.connect(uri, function(err, client) {
+    const collection = client.db("loja").collection("produtos");
       collection.update(
         { _id: objectId(req.params.id) },
         { $set:
@@ -116,25 +109,23 @@ app.put('/api/produto/:id', function(req, res) {
           } else {
             res.json(records);
           }
-          mongoclient.close();
         }
       );
-    });
+    client.close();
   });
 });
 
 // DELETE by ID (Delete)
 app.delete('/api/produto/:id', function(req, res) {
-  db.open( function(err, mongoclient) {
-    mongoclient.collection('produtos', function(err, collection) {
+  MongoClient.connect(uri, function(err, client) {
+    const collection = client.db("loja").collection("produtos");
       collection.remove({ _id: objectId(req.params.id)}, function(err, records) {
         if(err){
           res.json(err);
         } else {
           res.json(records);
         }
-        mongoclient.close();
       });
-    });
+    client.close();
   });
 });
