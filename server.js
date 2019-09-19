@@ -50,15 +50,19 @@ app.post('/api/produto', function(req, res) {
     console.log(erros);
   } else {
     MongoClient.connect(uri, function(err, client) {
-      const collection = client.db("loja").collection("produtos");
-      collection.insert(dados, function(err, records) {
-        if(err) {
-          res.json(err);
-        } else {
-          res.json(records);
-        }
-      });
-      client.close();
+      if (err) {
+        console.error('Ocorreu um erro ao conectar-se ao MongoDB: ', err);
+      } else {
+        const collection = client.db("loja").collection("produtos");
+        collection.insert(dados, function(err, records) {
+          if(err) {
+            res.json(err);
+          } else {
+            res.json(records);
+          }
+        });
+        client.close();
+      }
     });
   }
 });
@@ -85,51 +89,63 @@ app.get('/api/produtos', function(req, res) {
 // GET by ID (Ready/ID)
 app.get('/api/produtos/:id', function(req, res) {
   MongoClient.connect(uri, function(err, client) {
-    const collection = client.db("loja").collection("produtos");
-      collection.find(objectId(req.params.id)).toArray(function(err, results) {
-        if(err){
-          res.json(err);
-        } else {
-          res.status(200).json(results);
-        }
-      });
-    client.close();
+    if (err) {
+      console.error('Ocorreu um erro ao conectar-se ao MongoDB: ', err);
+    } else {
+      const collection = client.db("loja").collection("produtos");
+        collection.find(objectId(req.params.id)).toArray(function(err, results) {
+          if(err){
+            res.json(err);
+          } else {
+            res.status(200).json(results);
+          }
+        });
+      client.close();
+    }
   });
 });
 
 // PUT by ID (Update/ID)
 app.put('/api/produto/:id', function(req, res) {
   MongoClient.connect(uri, function(err, client) {
-    const collection = client.db("loja").collection("produtos");
-      collection.update(
-        { _id: objectId(req.params.id) },
-        { $set:
-          { nome: req.body.nome, quantidade: req.body.quantidade, valor: req.body.valor }
-        },
-        { mult: false },
-        function(err, records) {
-          if(err) {
-            res.json(err);
-          } else {
-            res.json(records);
+    if (err) {
+      console.error('Ocorreu um erro ao conectar-se ao MongoDB: ', err);
+    } else {
+      const collection = client.db("loja").collection("produtos");
+        collection.update(
+          { _id: objectId(req.params.id) },
+          { $set:
+            { nome: req.body.nome, quantidade: req.body.quantidade, valor: req.body.valor }
+          },
+          { mult: false },
+          function(err, records) {
+            if(err) {
+              res.json(err);
+            } else {
+              res.json(records);
+            }
           }
-        }
-      );
-    client.close();
+        );
+      client.close();
+    }
   });
 });
 
 // DELETE by ID (Delete)
 app.delete('/api/produto/:id', function(req, res) {
   MongoClient.connect(uri, function(err, client) {
-    const collection = client.db("loja").collection("produtos");
-      collection.remove({ _id: objectId(req.params.id)}, function(err, records) {
-        if(err){
-          res.json(err);
-        } else {
-          res.json(records);
-        }
-      });
-    client.close();
+    if (err) {
+      console.error('Ocorreu um erro ao conectar-se ao MongoDB: ', err);
+    } else {
+      const collection = client.db("loja").collection("produtos");
+        collection.remove({ _id: objectId(req.params.id)}, function(err, records) {
+          if(err){
+            res.json(err);
+          } else {
+            res.json(records);
+          }
+        });
+      client.close();
+    }
   });
 });
