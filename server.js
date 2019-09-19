@@ -66,15 +66,19 @@ app.post('/api/produto', function(req, res) {
 // GET (Ready)
 app.get('/api/produtos', function(req, res) {
   MongoClient.connect(uri, function(err, client) {
-    const collection = client.db("loja").collection("produtos");
-      collection.find().toArray(function(err, result) {
-        if(err) {
-          res.json(err);
-        } else {
-          res.json(result);
-        }
-      });
-    client.close();
+    if (err) {
+      console.error('Ocorreu um erro ao conectar-se ao MongoDB: ', err);
+    } else {
+      const collection = client.db("loja").collection("produtos");
+        collection.find().toArray(function(err, result) {
+          if(err) {
+            res.json(err);
+          } else {
+            res.json(result);
+          }
+        });
+      client.close();
+    }
   });
 });
 
