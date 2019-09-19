@@ -1,3 +1,4 @@
+var dbenv = require('./config/db');
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongodb = require('mongodb');
@@ -23,17 +24,15 @@ app.use(function(req, res, next) {
   next();
 });
 
-var port = process.env.PORT || 8080;
-
-app.listen(port);
+app.listen(process.env.PORT || 8080);
 
 var db = new mongodb.Db(
   'loja',
-  new mongodb.Server('localhost', 27017, {}),
+  new mongodb.Server(process.env.MONGO_URL || "localhost", process.env.PORT || 27017, {}),
   {}
 );
 
-console.log('|========== Servidor HTTP online na porta ' + port + ' ==========|');
+console.log('|========== Servidor HTTP online ==========|');
 
 app.get('/', function(req, res) {
   res.send({msg: 'Bem vindo!'});
