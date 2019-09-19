@@ -27,7 +27,7 @@ app.listen(process.env.PORT || 8080);
 
 var uri = "mongodb://loja_admin:1536974@cluster0-shard-00-00-znuyq.mongodb.net:27017,cluster0-shard-00-01-znuyq.mongodb.net:27017,cluster0-shard-00-02-znuyq.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority";
 
-console.log('|========== Servidor HTTP online ==========|');
+console.log('|=========== Servidor HTTP online ===========|');
 
 app.get('/', function(req, res) {
   res.send({msg: 'Bem vindo!'});
